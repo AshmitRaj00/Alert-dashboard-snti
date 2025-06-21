@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts Dashboard</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo"><i class='bx bxs-bell-ring'></i></span>
+                <span class="sidebar-title">AlertsTool</span>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><i class='bx bxs-dashboard'></i> Dashboard</li>
+                    <li><i class='bx bx-desktop'></i> Monitoring</li>
+                    <li><i class='bx bx-link-alt'></i> API Scan</li>
+                    <li><i class='bx bx-bar-chart-alt-2'></i> Reports</li>
+                </ul>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="sidebar-settings"><i class='bx bx-cog'></i> Settings</div>
+                <div class="sidebar-logout"><i class='bx bx-log-out'></i> Log Out</div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">Dashboard</div>
+                <div class="header-user">
+                    <span class="header-bell"><i class='bx bx-bell'></i></span>
+                    <span class="header-user-info">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar">
+                        <span class="user-details">
+                            <span class="user-name">Megan Josh</span>
+                            <span class="user-email">meganjosh@gmail.com</span>
+                        </span>
+                    </span>
+                </div>
+            </header>
+            <section class="filters-row">
+                <div class="filter-group">
+                    <label>From date:</label>
+                    <input type="date" value="2024-04-01">
+                </div>
+                <div class="filter-group">
+                    <label>To date:</label>
+                    <input type="date" value="2024-05-01">
+                </div>
+                <div class="filter-group">
+                    <label>Alert Type:</label>
+                    <select>
+                        <option>All</option>
+                        <option>SSL Alerts</option>
+                        <option>Data Leaks</option>
+                        <option>Others</option>
+                    </select>
+                </div>
+                <div class="filter-group search-group">
+                    <input type="text" placeholder="search text">
+                </div>
+            </section>
+            <section class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">Alert Count</div>
+                    <div class="stat-value">324</div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-label">Critical Alerts</div>
+                    <div class="stat-value">85 <i class='bx bxs-error'></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Open Alerts</div>
+                    <div class="stat-value">56</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Closed Alerts</div>
+                    <div class="stat-value">183</div>
+                </div>
+                <div class="stat-card donut-card">
+                    <canvas id="alertDonut" width="100" height="100"></canvas>
+                    <div class="donut-legend">
+                        <div><span class="legend-color ssl"></span> SSL Alerts</div>
+                        <div><span class="legend-color data"></span> Data Leaks</div>
+                        <div><span class="legend-color other"></span> Others</div>
+                    </div>
+                </div>
+            </section>
+            <section class="main-widgets">
+                <div class="widget trends">
+                    <div class="widget-title">Alert Trends</div>
+                    <canvas id="alertTrends" height="120"></canvas>
+                </div>
+                <div class="widget turnaround">
+                    <div class="widget-title">Turnaround Time Visibility</div>
+                    <div class="turnaround-bar">
+                        <div class="turnaround-fill"></div>
+                        <span class="turnaround-time">1 h 45 min</span>
+                    </div>
+                </div>
+            </section>
+            <section class="tables-row">
+                <div class="table-widget">
+                    <div class="widget-title">Recent Alerts</div>
+                    <table class="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Severity</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>04/15/2024 10:35 AM</td>
+                                <td>Malware</td>
+                                <td class="severity high">High</td>
+                                <td>Malware detected</td>
+                            </tr>
+                            <tr>
+                                <td>04/15/2024 09:21 AM</td>
+                                <td>Unauthorized Access</td>
+                                <td class="severity medium">Medium</td>
+                                <td>Suspicious login</td>
+                            </tr>
+                            <tr>
+                                <td>04/15/2024 08:25 AM</td>
+                                <td>Expired SSL</td>
+                                <td class="severity medium">Medium</td>
+                                <td>Expired SSL certificate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-widget">
+                    <div class="widget-title">Top Alerts</div>
+                    <table class="alerts-table">
+                        <thead>
+                            <tr>
+                                <th>Source System/IP</th>
+                                <th>Alert Count</th>
+                                <th>Critical Alerts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>192.168.1.12</td>
+                                <td>120</td>
+                                <td>45</td>
+                            </tr>
+                            <tr>
+                                <td>App Server 3</td>
+                                <td>95</td>
+                                <td>33</td>
+                            </tr>
+                            <tr>
+                                <td>Firewall A</td>
+                                <td>50</td>
+                                <td>10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="js/main.js"></script>
+</body>
+</html> 

@@ -1,9 +1,39 @@
-/* Dashboard styles will go here */ 
+:root {
+    --bg-main: #f7f7fa;
+    --bg-card: #fff;
+    --bg-card-alt: #f3f3fa;
+    --sidebar-bg: linear-gradient(180deg, #5b5bf6 0%, #6a6afc 100%);
+    --sidebar-text: #fff;
+    --primary: #5b5bf6;
+    --danger: #f44336;
+    --gold: #c49a4a;
+    --text-main: #222;
+    --text-muted: #888;
+    --table-header: #f3f3fa;
+    --shadow: 0 2px 8px rgba(91,91,246,0.06);
+    --border: #e0e0e0;
+}
+body.dark {
+    --bg-main: #181a20;
+    --bg-card: #23262f;
+    --bg-card-alt: #23262f;
+    --sidebar-bg: linear-gradient(180deg, #23262f 0%, #23262f 100%);
+    --sidebar-text: #fff;
+    --primary: #5b5bf6;
+    --danger: #f44336;
+    --gold: #c49a4a;
+    --text-main: #f7f7fa;
+    --text-muted: #b0b3c0;
+    --table-header: #23262f;
+    --shadow: 0 2px 8px rgba(0,0,0,0.18);
+    --border: #23262f;
+}
 body {
     font-family: 'Poppins', sans-serif;
-    background: #f7f7fa;
+    background: var(--bg-main);
     margin: 0;
-    color: #222;
+    color: var(--text-main);
+    transition: background 0.3s, color 0.3s;
 }
 
 .container {
@@ -13,14 +43,15 @@ body {
 
 .sidebar {
     width: 270px;
-    background: linear-gradient(180deg, #5b5bf6 0%, #6a6afc 100%);
-    color: #fff;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     border-top-left-radius: 16px;
     border-bottom-left-radius: 16px;
     box-shadow: 2px 0 16px rgba(91,91,246,0.08);
+    transition: background 0.3s, color 0.3s;
 }
 
 .sidebar-header {
@@ -85,10 +116,11 @@ body {
 .main-content {
     flex: 1;
     padding: 32px 40px 32px 40px;
-    background: #f7f7fa;
+    background: var(--bg-main);
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
     min-width: 0;
+    transition: background 0.3s;
 }
 .main-header {
     display: flex;
@@ -99,7 +131,7 @@ body {
 .header-title {
     font-size: 2.2rem;
     font-weight: 700;
-    color: #333;
+    color: var(--text-main);
 }
 .header-user {
     display: flex;
@@ -108,17 +140,17 @@ body {
 }
 .header-bell {
     font-size: 1.5rem;
-    color: #5b5bf6;
+    color: var(--primary);
     margin-right: 10px;
     cursor: pointer;
 }
 .header-user-info {
     display: flex;
     align-items: center;
-    background: #f3f3fa;
+    background: var(--bg-card-alt);
     border-radius: 30px;
     padding: 4px 16px 4px 4px;
-    box-shadow: 0 2px 8px rgba(91,91,246,0.06);
+    box-shadow: var(--shadow);
 }
 .user-avatar {
     width: 38px;
@@ -135,11 +167,33 @@ body {
 }
 .user-name {
     font-weight: 600;
-    color: #222;
+    color: var(--text-main);
 }
 .user-email {
     font-size: 0.92rem;
-    color: #888;
+    color: var(--text-muted);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 1.7rem;
+    color: var(--primary);
+    margin-right: 8px;
+    border-radius: 50%;
+    padding: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+.theme-toggle:hover {
+    background: var(--bg-card-alt);
+}
+body.dark .theme-toggle {
+    color: #ffd600;
+}
+body.dark .theme-toggle:hover {
+    background: #23262f;
 }
 
 .filters-row {
@@ -152,7 +206,7 @@ body {
     display: flex;
     flex-direction: column;
     font-size: 1rem;
-    color: #444;
+    color: var(--text-main);
 }
 .filter-group label {
     margin-bottom: 6px;
@@ -162,20 +216,22 @@ body {
 .filter-group select {
     padding: 7px 14px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
     font-size: 1rem;
-    color: #333;
+    color: var(--text-main);
     outline: none;
+    transition: background 0.3s, color 0.3s;
 }
 .search-group input[type="text"] {
     padding: 7px 14px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
     font-size: 1rem;
-    color: #333;
+    color: var(--text-main);
     outline: none;
+    transition: background 0.3s, color 0.3s;
 }
 
 .stats-row {
@@ -184,19 +240,20 @@ body {
     margin-bottom: 28px;
 }
 .stat-card {
-    background: #f3f3fa;
+    background: var(--bg-card-alt);
     border-radius: 18px;
     padding: 22px 28px;
     min-width: 150px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    box-shadow: 0 2px 8px rgba(91,91,246,0.06);
+    box-shadow: var(--shadow);
     font-size: 1.1rem;
     flex: 1;
+    transition: background 0.3s, color 0.3s;
 }
 .stat-card .stat-label {
-    color: #888;
+    color: var(--text-muted);
     font-size: 1.02rem;
     margin-bottom: 8px;
     font-weight: 500;
@@ -204,34 +261,37 @@ body {
 .stat-card .stat-value {
     font-size: 2.1rem;
     font-weight: 700;
-    color: #222;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 .stat-card.critical {
-    color: #f44336;
-    border: 2px solid #f44336;
+    color: var(--danger);
+    border: 2px solid var(--danger);
     background: #fff0f0;
 }
+body.dark .stat-card.critical {
+    background: #2d1a1a;
+}
 .stat-card.critical .stat-label {
-    color: #f44336;
+    color: var(--danger);
 }
 .stat-card.critical .stat-value {
-    color: #f44336;
+    color: var(--danger);
 }
 .stat-card.donut-card {
     min-width: 210px;
     align-items: center;
     justify-content: center;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(91,91,246,0.06);
+    background: var(--bg-card);
+    box-shadow: var(--shadow);
     padding: 18px 10px 10px 10px;
 }
 .donut-legend {
     margin-top: 10px;
     font-size: 0.98rem;
-    color: #888;
+    color: var(--text-muted);
 }
 .legend-color {
     display: inline-block;
@@ -242,13 +302,13 @@ body {
     vertical-align: middle;
 }
 .legend-color.ssl {
-    background: #f44336;
+    background: var(--danger);
 }
 .legend-color.data {
-    background: #5b5bf6;
+    background: var(--primary);
 }
 .legend-color.other {
-    background: #c49a4a;
+    background: var(--gold);
 }
 
 .main-widgets {
@@ -257,17 +317,18 @@ body {
     margin-bottom: 28px;
 }
 .widget {
-    background: #fff;
+    background: var(--bg-card);
     border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(91,91,246,0.06);
+    box-shadow: var(--shadow);
     padding: 18px 24px 18px 24px;
     flex: 1;
     min-width: 0;
+    transition: background 0.3s, color 0.3s;
 }
 .widget-title {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-main);
     margin-bottom: 12px;
 }
 .trends {
@@ -280,7 +341,7 @@ body {
     justify-content: center;
 }
 .turnaround-bar {
-    background: #e0e0e0;
+    background: var(--border);
     border-radius: 10px;
     height: 18px;
     position: relative;
@@ -288,7 +349,7 @@ body {
     width: 100%;
 }
 .turnaround-fill {
-    background: #5b5bf6;
+    background: var(--primary);
     height: 100%;
     border-radius: 10px;
     width: 70%;
@@ -302,7 +363,7 @@ body {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1rem;
-    color: #222;
+    color: var(--text-main);
     font-weight: 500;
 }
 
@@ -311,12 +372,13 @@ body {
     gap: 22px;
 }
 .table-widget {
-    background: #fff;
+    background: var(--bg-card);
     border-radius: 18px;
-    box-shadow: 0 2px 8px rgba(91,91,246,0.06);
+    box-shadow: var(--shadow);
     padding: 18px 24px 18px 24px;
     flex: 1;
     min-width: 0;
+    transition: background 0.3s, color 0.3s;
 }
 .alerts-table {
     width: 100%;
@@ -329,20 +391,20 @@ body {
     text-align: left;
 }
 .alerts-table th {
-    color: #5b5bf6;
+    color: var(--primary);
     font-weight: 600;
-    background: #f3f3fa;
-    border-bottom: 2px solid #e0e0e0;
+    background: var(--table-header);
+    border-bottom: 2px solid var(--border);
 }
 .alerts-table tr:not(:last-child) {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
 }
 .severity.high {
-    color: #f44336;
+    color: var(--danger);
     font-weight: 600;
 }
 .severity.medium {
-    color: #c49a4a;
+    color: var(--gold);
     font-weight: 600;
 }
 

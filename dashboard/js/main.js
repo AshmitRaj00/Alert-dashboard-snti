@@ -72,8 +72,27 @@ function fillTurnaroundBar() {
     if (fill) fill.style.width = '70%';
 }
 
+// Theme toggle logic
+function setTheme(dark) {
+    document.body.classList.toggle('dark', dark);
+    const icon = document.querySelector('.theme-toggle i');
+    if (icon) {
+        icon.className = dark ? 'bx bx-sun' : 'bx bx-moon';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
     fillTurnaroundBar();
+
+    // Theme toggle
+    const themeBtn = document.querySelector('.theme-toggle');
+    let dark = localStorage.getItem('theme') === 'dark';
+    setTheme(dark);
+    themeBtn.addEventListener('click', function() {
+        dark = !document.body.classList.contains('dark');
+        setTheme(dark);
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+    });
 }); 

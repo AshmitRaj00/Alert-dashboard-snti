@@ -81,6 +81,20 @@ function setTheme(dark) {
     }
 }
 
+function showLogin(show) {
+    document.querySelector('.login-overlay').style.display = show ? 'flex' : 'none';
+    document.querySelector('.dashboard-app').style.display = show ? 'none' : '';
+}
+
+function isLoggedIn() {
+    return localStorage.getItem('loggedIn') === 'true';
+}
+
+function logout() {
+    localStorage.removeItem('loggedIn');
+    showLogin(true);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
@@ -94,5 +108,21 @@ document.addEventListener('DOMContentLoaded', function() {
         dark = !document.body.classList.contains('dark');
         setTheme(dark);
         localStorage.setItem('theme', dark ? 'dark' : 'light');
+    });
+
+    // Login logic
+    showLogin(!isLoggedIn());
+    document.querySelector('.login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const pass = document.getElementById('login-password').value.trim();
+        if (email && pass) {
+            localStorage.setItem('loggedIn', 'true');
+            showLogin(false);
+        }
+    });
+    // Logout logic
+    document.querySelector('.sidebar-logout').addEventListener('click', function() {
+        logout();
     });
 }); 

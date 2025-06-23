@@ -95,6 +95,31 @@ function logout() {
     showLogin(true);
 }
 
+const randomUsers = [
+    { name: 'Alex Carter', email: 'alex.carter@example.com', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+    { name: 'Priya Singh', email: 'priya.singh@example.com', avatar: 'https://randomuser.me/api/portraits/women/65.jpg' },
+    { name: 'Jordan Lee', email: 'jordan.lee@example.com', avatar: 'https://randomuser.me/api/portraits/men/76.jpg' },
+    { name: 'Sara Kim', email: 'sara.kim@example.com', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+    { name: 'Chris Brown', email: 'chris.brown@example.com', avatar: 'https://randomuser.me/api/portraits/men/45.jpg' },
+    { name: 'Taylor Green', email: 'taylor.green@example.com', avatar: 'https://randomuser.me/api/portraits/men/88.jpg' },
+    { name: 'Nina Patel', email: 'nina.patel@example.com', avatar: 'https://randomuser.me/api/portraits/women/23.jpg' }
+];
+
+function setRandomUser() {
+    let user = JSON.parse(localStorage.getItem('dashboardUser'));
+    if (!user) {
+        user = randomUsers[Math.floor(Math.random() * randomUsers.length)];
+        localStorage.setItem('dashboardUser', JSON.stringify(user));
+    }
+    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('user-avatar').src = user.avatar;
+}
+
+function clearRandomUser() {
+    localStorage.removeItem('dashboardUser');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
@@ -112,17 +137,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Login logic
     showLogin(!isLoggedIn());
+    if (isLoggedIn()) setRandomUser();
     document.querySelector('.login-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value.trim();
         const pass = document.getElementById('login-password').value.trim();
         if (email && pass) {
             localStorage.setItem('loggedIn', 'true');
+            clearRandomUser();
+            setRandomUser();
             showLogin(false);
         }
     });
     // Logout logic
     document.querySelector('.sidebar-logout').addEventListener('click', function() {
         logout();
+        clearRandomUser();
     });
 }); 

@@ -58,7 +58,9 @@
                 </div>
                 <nav class="sidebar-nav">
                     <ul>
-                        <li class="active"><i class='bx bxs-dashboard'></i> Dashboard</li>
+                        <li class="active" id="nav-dashboard"><i class='bx bxs-dashboard'></i> Dashboard</li>
+                        <li id="nav-profile"><i class='bx bx-user'></i> Profile</li>
+                        <li id="nav-settings"><i class='bx bx-cog'></i> Settings</li>
                         <li><i class='bx bx-desktop'></i> Monitoring</li>
                         <li><i class='bx bx-link-alt'></i> API Scan</li>
                         <li><i class='bx bx-bar-chart-alt-2'></i> Reports</li>
@@ -210,6 +212,37 @@
                     </div>
                 </section>
             </main>
+        </div>
+    </div>
+    <div id="page-profile" style="display:none;">
+        <div class="profile-card">
+            <h2>Profile</h2>
+            <div class="profile-avatar-row">
+                <img id="profile-avatar" class="profile-avatar" src="" alt="Avatar">
+                <input type="file" id="profile-avatar-upload" accept="image/*" style="display:none;">
+                <button id="change-avatar-btn">Change Avatar</button>
+            </div>
+            <div class="profile-info">
+                <label>Name</label>
+                <input type="text" id="profile-name">
+                <label>Email</label>
+                <input type="email" id="profile-email" disabled>
+            </div>
+            <button id="save-profile-btn">Save Profile</button>
+        </div>
+    </div>
+    <div id="page-settings" style="display:none;">
+        <div class="settings-card">
+            <h2>Settings</h2>
+            <div class="settings-group">
+                <label for="settings-password">Change Password</label>
+                <input type="password" id="settings-password" placeholder="New password">
+                <button id="change-password-btn">Change Password</button>
+            </div>
+            <div class="settings-group">
+                <label>Theme</label>
+                <button id="settings-theme-btn">Toggle Dark/Light Mode</button>
+            </div>
         </div>
     </div>
     <script src="js/main.js"></script>

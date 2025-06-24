@@ -105,15 +105,17 @@ const randomUsers = [
     { name: 'Nina Patel', email: 'nina.patel@example.com', avatar: 'https://randomuser.me/api/portraits/women/23.jpg' }
 ];
 
-function setRandomUser() {
-    let user = JSON.parse(localStorage.getItem('dashboardUser'));
+function setRandomUser(user) {
     if (!user) {
-        user = randomUsers[Math.floor(Math.random() * randomUsers.length)];
-        localStorage.setItem('dashboardUser', JSON.stringify(user));
+        user = JSON.parse(localStorage.getItem('dashboardUser'));
+        if (!user) {
+            user = randomUsers[Math.floor(Math.random() * randomUsers.length)];
+            localStorage.setItem('dashboardUser', JSON.stringify(user));
+        }
     }
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-email').textContent = user.email;
-    document.getElementById('user-avatar').src = user.avatar;
+    document.getElementById('user-avatar').src = user.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
 }
 
 function clearRandomUser() {
@@ -193,6 +195,72 @@ function startResendCooldown() {
             setResendOTPEnabled(true);
         }
     }, 1000);
+}
+
+function showPage(page) {
+    document.getElementById('page-dashboard').style.display = page === 'dashboard' ? '' : 'none';
+    document.getElementById('page-profile').style.display = page === 'profile' ? '' : 'none';
+    document.getElementById('page-settings').style.display = page === 'settings' ? '' : 'none';
+    // Sidebar active state
+    document.getElementById('nav-dashboard').classList.toggle('active', page === 'dashboard');
+    document.getElementById('nav-profile').classList.toggle('active', page === 'profile');
+    document.getElementById('nav-settings').classList.toggle('active', page === 'settings');
+}
+
+function loadProfile() {
+    const user = getCurrentUser();
+    if (!user) return;
+    document.getElementById('profile-name').value = user.name;
+    document.getElementById('profile-email').value = user.email;
+    document.getElementById('profile-avatar').src = user.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
+}
+function saveProfile() {
+    const name = document.getElementById('profile-name').value.trim();
+    let user = getCurrentUser();
+    if (!user) return;
+    user.name = name;
+    // Save avatar if changed
+    user.avatar = document.getElementById('profile-avatar').src;
+    updateRegisteredUser(user);
+    setRandomUser(user); // update header
+    alert('Profile updated!');
+}
+function getCurrentUser() {
+    const email = document.getElementById('user-email').textContent.trim().toLowerCase();
+    return findUserByEmail(email);
+}
+function updateRegisteredUser(updatedUser) {
+    let users = getRegisteredUsers();
+    users = users.map(u => u.email === updatedUser.email ? updatedUser : u);
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+    localStorage.setItem('dashboardUser', JSON.stringify(updatedUser));
+}
+// Avatar upload
+function handleAvatarUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        document.getElementById('profile-avatar').src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+// Password change
+function changePassword() {
+    const newPass = document.getElementById('settings-password').value.trim();
+    if (!newPass) return alert('Enter a new password.');
+    let user = getCurrentUser();
+    if (!user) return;
+    user.password = newPass;
+    updateRegisteredUser(user);
+    document.getElementById('settings-password').value = '';
+    alert('Password changed!');
+}
+// Theme toggle from settings
+function toggleThemeFromSettings() {
+    const dark = !document.body.classList.contains('dark');
+    setTheme(dark);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -285,4 +353,20 @@ document.addEventListener('DOMContentLoaded', function() {
         currentOTP = generateOTP();
         showOTPInput(currentLoginEmail, true);
     });
+
+    // Navigation
+    document.getElementById('nav-dashboard').onclick = function() { showPage('dashboard'); };
+    document.getElementById('nav-profile').onclick = function() { loadProfile(); showPage('profile'); };
+    document.getElementById('nav-settings').onclick = function() { showPage('settings'); };
+    // Profile
+    document.getElementById('change-avatar-btn').onclick = function() {
+        document.getElementById('profile-avatar-upload').click();
+    };
+    document.getElementById('profile-avatar-upload').onchange = handleAvatarUpload;
+    document.getElementById('save-profile-btn').onclick = saveProfile;
+    // Settings
+    document.getElementById('change-password-btn').onclick = changePassword;
+    document.getElementById('settings-theme-btn').onclick = toggleThemeFromSettings;
+    // Show dashboard by default
+    showPage('dashboard');
 }); 

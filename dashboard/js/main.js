@@ -134,6 +134,8 @@ function findUserByEmail(email) {
 
 let currentOTP = '';
 let currentLoginEmail = '';
+let resendTimeout = null;
+let resendCooldown = 30; // seconds
 
 function showLoginForm() {
     document.getElementById('login-form').style.display = '';
@@ -152,16 +154,45 @@ function showRegisterForm() {
     document.getElementById('register-email').value = '';
     document.getElementById('register-password').value = '';
 }
-function showOTPInput(email) {
+function showOTPInput(email, showResendMsg = false) {
     document.getElementById('login-email-group').style.display = 'none';
     document.getElementById('otp-group').style.display = '';
     document.getElementById('login-btn').textContent = 'Login';
-    document.getElementById('otp-message').textContent = `Your OTP is: ${currentOTP}`;
     document.getElementById('login-otp').value = '';
     currentLoginEmail = email;
+    document.getElementById('login-otp').focus();
+    setResendOTPEnabled(false);
+    let msg = `<div style='color:var(--text-main);margin-bottom:4px;'>OTP was sent to <b>${email}</b></div>`;
+    if (showResendMsg) {
+        msg += `<div class='success'>A new OTP has been sent.</div>`;
+    }
+    document.getElementById('otp-message').innerHTML = msg;
+    startResendCooldown();
 }
 function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function setResendOTPEnabled(enabled) {
+    const resendLink = document.getElementById('resend-otp');
+    resendLink.style.pointerEvents = enabled ? 'auto' : 'none';
+    resendLink.style.opacity = enabled ? '1' : '0.5';
+}
+
+function startResendCooldown() {
+    setResendOTPEnabled(false);
+    let seconds = resendCooldown;
+    const resendLink = document.getElementById('resend-otp');
+    resendLink.textContent = `Resend OTP (${seconds})`;
+    if (resendTimeout) clearInterval(resendTimeout);
+    resendTimeout = setInterval(() => {
+        seconds--;
+        resendLink.textContent = seconds > 0 ? `Resend OTP (${seconds})` : 'Resend OTP';
+        if (seconds <= 0) {
+            clearInterval(resendTimeout);
+            setResendOTPEnabled(true);
+        }
+    }, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -245,5 +276,13 @@ document.addEventListener('DOMContentLoaded', function() {
         logout();
         clearRandomUser();
         showLoginForm();
+    });
+
+    // Resend OTP
+    document.getElementById('resend-otp').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!currentLoginEmail) return;
+        currentOTP = generateOTP();
+        showOTPInput(currentLoginEmail, true);
     });
 }); 

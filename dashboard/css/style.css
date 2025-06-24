@@ -505,4 +505,32 @@ body.dark .login-form {
 body.dark .login-btn:hover {
     background: #fff;
     color: var(--primary);
+}
+
+.form-switch {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.98rem;
+}
+.form-switch a {
+    color: var(--primary);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.form-switch a:hover {
+    color: var(--danger);
+}
+.otp-message {
+    text-align: center;
+    font-size: 1.05rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+    min-height: 20px;
+}
+#otp-group input {
+    letter-spacing: 0.2em;
+    font-size: 1.2rem;
+    text-align: center;
 } 

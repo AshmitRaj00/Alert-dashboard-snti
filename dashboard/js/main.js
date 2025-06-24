@@ -120,6 +120,50 @@ function clearRandomUser() {
     localStorage.removeItem('dashboardUser');
 }
 
+function getRegisteredUsers() {
+    return JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+}
+function saveRegisteredUser(user) {
+    const users = getRegisteredUsers();
+    users.push(user);
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+}
+function findUserByEmail(email) {
+    return getRegisteredUsers().find(u => u.email === email);
+}
+
+let currentOTP = '';
+let currentLoginEmail = '';
+
+function showLoginForm() {
+    document.getElementById('login-form').style.display = '';
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('otp-group').style.display = 'none';
+    document.getElementById('login-email-group').style.display = '';
+    document.getElementById('login-btn').textContent = 'Send OTP';
+    document.getElementById('otp-message').textContent = '';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-otp').value = '';
+}
+function showRegisterForm() {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = '';
+    document.getElementById('register-name').value = '';
+    document.getElementById('register-email').value = '';
+    document.getElementById('register-password').value = '';
+}
+function showOTPInput(email) {
+    document.getElementById('login-email-group').style.display = 'none';
+    document.getElementById('otp-group').style.display = '';
+    document.getElementById('login-btn').textContent = 'Login';
+    document.getElementById('otp-message').textContent = `Your OTP is: ${currentOTP}`;
+    document.getElementById('login-otp').value = '';
+    currentLoginEmail = email;
+}
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
@@ -135,23 +179,71 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('theme', dark ? 'dark' : 'light');
     });
 
-    // Login logic
+    // Login/Registration/OTP logic
     showLogin(!isLoggedIn());
     if (isLoggedIn()) setRandomUser();
-    document.querySelector('.login-form').addEventListener('submit', function(e) {
+
+    // Switch forms
+    document.getElementById('show-register').onclick = function(e) {
         e.preventDefault();
-        const email = document.getElementById('login-email').value.trim();
-        const pass = document.getElementById('login-password').value.trim();
-        if (email && pass) {
-            localStorage.setItem('loggedIn', 'true');
-            clearRandomUser();
-            setRandomUser();
-            showLogin(false);
+        showRegisterForm();
+    };
+    document.getElementById('show-login').onclick = function(e) {
+        e.preventDefault();
+        showLoginForm();
+    };
+
+    // Registration
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('register-name').value.trim();
+        const email = document.getElementById('register-email').value.trim().toLowerCase();
+        const password = document.getElementById('register-password').value.trim();
+        if (!name || !email || !password) return;
+        if (findUserByEmail(email)) {
+            alert('Email already registered. Please login.');
+            showLoginForm();
+            return;
+        }
+        saveRegisteredUser({ name, email, password });
+        alert('Registration successful! Please login.');
+        showLoginForm();
+    });
+
+    // OTP Login
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const otp = document.getElementById('login-otp').value.trim();
+        if (document.getElementById('otp-group').style.display === 'none') {
+            // Step 1: Send OTP
+            const user = findUserByEmail(email);
+            if (!user) {
+                document.getElementById('otp-message').textContent = 'Email not registered.';
+                return;
+            }
+            currentOTP = generateOTP();
+            showOTPInput(email);
+        } else {
+            // Step 2: Verify OTP
+            if (otp === currentOTP) {
+                localStorage.setItem('loggedIn', 'true');
+                clearRandomUser();
+                setRandomUser();
+                showLogin(false);
+                document.getElementById('otp-message').textContent = '';
+                currentOTP = '';
+                currentLoginEmail = '';
+            } else {
+                document.getElementById('otp-message').textContent = 'Invalid OTP. Try again.';
+            }
         }
     });
+
     // Logout logic
     document.querySelector('.sidebar-logout').addEventListener('click', function() {
         logout();
         clearRandomUser();
+        showLoginForm();
     });
 }); 

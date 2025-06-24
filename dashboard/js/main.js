@@ -274,68 +274,68 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Login/Registration logic
-    showLogin(!isLoggedIn());
+    // showLogin(!isLoggedIn());
     if (isLoggedIn()) setRandomUser();
 
     // Switch forms
-    document.getElementById('show-register').onclick = function(e) {
-        e.preventDefault();
-        showRegisterForm();
-    };
-    document.getElementById('show-login').onclick = function(e) {
-        e.preventDefault();
-        showLoginForm();
-    };
+    // document.getElementById('show-register').onclick = function(e) {
+    //     e.preventDefault();
+    //     showRegisterForm();
+    // };
+    // document.getElementById('show-login').onclick = function(e) {
+    //     e.preventDefault();
+    //     showLoginForm();
+    // };
 
     // Registration
-    document.getElementById('register-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('register-name').value.trim();
-        const email = document.getElementById('register-email').value.trim().toLowerCase();
-        const password = document.getElementById('register-password').value.trim();
-        if (!name || !email || !password) return;
-        if (findUserByEmail(email)) {
-            alert('Email already registered. Please login.');
-            showLoginForm();
-            return;
-        }
-        saveRegisteredUser({ name, email, password });
-        alert('Registration successful! Please login.');
-        showLoginForm();
-    });
+    // document.getElementById('register-form').addEventListener('submit', function(e) {
+    //     e.preventDefault();
+    //     const name = document.getElementById('register-name').value.trim();
+    //     const email = document.getElementById('register-email').value.trim().toLowerCase();
+    //     const password = document.getElementById('register-password').value.trim();
+    //     if (!name || !email || !password) return;
+    //     if (findUserByEmail(email)) {
+    //         alert('Email already registered. Please login.');
+    //         showLoginForm();
+    //         return;
+    //     }
+    //     saveRegisteredUser({ name, email, password });
+    //     alert('Registration successful! Please login.');
+    //     showLoginForm();
+    // });
 
     // Email/Password Login
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value.trim().toLowerCase();
-        const password = document.getElementById('login-password').value.trim();
-        const user = findUserByEmail(email);
-        if (!user || user.password !== password) {
-            document.getElementById('otp-message').textContent = 'Invalid email or password.';
-            document.getElementById('otp-message').className = 'otp-message error';
-            return;
-        }
-        localStorage.setItem('loggedIn', 'true');
-        clearRandomUser();
-        setRandomUser(user);
-        showLogin(false);
-        document.getElementById('otp-message').textContent = '';
-    });
+    // document.getElementById('login-form').addEventListener('submit', function(e) {
+    //     e.preventDefault();
+    //     const email = document.getElementById('login-email').value.trim().toLowerCase();
+    //     const password = document.getElementById('login-password').value.trim();
+    //     const user = findUserByEmail(email);
+    //     if (!user || user.password !== password) {
+    //         document.getElementById('otp-message').textContent = 'Invalid email or password.';
+    //         document.getElementById('otp-message').className = 'otp-message error';
+    //         return;
+    //     }
+    //     localStorage.setItem('loggedIn', 'true');
+    //     clearRandomUser();
+    //     setRandomUser(user);
+    //     showLogin(false);
+    //     document.getElementById('otp-message').textContent = '';
+    // });
 
     // Logout logic
-    document.querySelector('.sidebar-logout').addEventListener('click', function() {
-        logout();
-        clearRandomUser();
-        showLoginForm();
-    });
+    // document.querySelector('.sidebar-logout').addEventListener('click', function() {
+    //     logout();
+    //     clearRandomUser();
+    //     showLoginForm();
+    // });
 
     // Resend OTP
-    document.getElementById('resend-otp').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (!currentLoginEmail) return;
-        currentOTP = generateOTP();
-        showOTPInput(currentLoginEmail, true);
-    });
+    // document.getElementById('resend-otp').addEventListener('click', function(e) {
+    //     e.preventDefault();
+    //     if (!currentLoginEmail) return;
+    //     currentOTP = generateOTP();
+    //     showOTPInput(currentLoginEmail, true);
+    // });
 
     // Navigation
     document.getElementById('nav-dashboard').onclick = function() { showPage('dashboard'); };

@@ -18,13 +18,12 @@
                 <label for="login-email">Email</label>
                 <input type="email" id="login-email" required autocomplete="username">
             </div>
-            <div class="form-group" id="otp-group" style="display:none;">
-                <label for="login-otp">Enter OTP</label>
-                <input type="text" id="login-otp" maxlength="6" pattern="\\d{6}" autocomplete="one-time-code">
-                <div class="resend-otp-row"><a href="#" id="resend-otp">Resend OTP</a></div>
+            <div class="form-group" id="login-password-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required autocomplete="current-password">
             </div>
             <div class="otp-message" id="otp-message"></div>
-            <button type="submit" class="login-btn" id="login-btn">Send OTP</button>
+            <button type="submit" class="login-btn" id="login-btn">Login</button>
             <div class="form-switch">
                 <span>Don't have an account? <a href="#" id="show-register">Register</a></span>
             </div>

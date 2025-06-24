@@ -134,11 +134,6 @@ function findUserByEmail(email) {
     return getRegisteredUsers().find(u => u.email === email);
 }
 
-let currentOTP = '';
-let currentLoginEmail = '';
-let resendTimeout = null;
-let resendCooldown = 30; // seconds
-
 function showLoginForm() {
     document.getElementById('login-form').style.display = '';
     document.getElementById('register-form').style.display = 'none';
@@ -278,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('theme', dark ? 'dark' : 'light');
     });
 
-    // Login/Registration/OTP logic
+    // Login/Registration logic
     showLogin(!isLoggedIn());
     if (isLoggedIn()) setRandomUser();
 
@@ -309,34 +304,22 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoginForm();
     });
 
-    // OTP Login
+    // Email/Password Login
     document.getElementById('login-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value.trim().toLowerCase();
-        const otp = document.getElementById('login-otp').value.trim();
-        if (document.getElementById('otp-group').style.display === 'none') {
-            // Step 1: Send OTP
-            const user = findUserByEmail(email);
-            if (!user) {
-                document.getElementById('otp-message').textContent = 'Email not registered.';
-                return;
-            }
-            currentOTP = generateOTP();
-            showOTPInput(email);
-        } else {
-            // Step 2: Verify OTP
-            if (otp === currentOTP) {
-                localStorage.setItem('loggedIn', 'true');
-                clearRandomUser();
-                setRandomUser();
-                showLogin(false);
-                document.getElementById('otp-message').textContent = '';
-                currentOTP = '';
-                currentLoginEmail = '';
-            } else {
-                document.getElementById('otp-message').textContent = 'Invalid OTP. Try again.';
-            }
+        const password = document.getElementById('login-password').value.trim();
+        const user = findUserByEmail(email);
+        if (!user || user.password !== password) {
+            document.getElementById('otp-message').textContent = 'Invalid email or password.';
+            document.getElementById('otp-message').className = 'otp-message error';
+            return;
         }
+        localStorage.setItem('loggedIn', 'true');
+        clearRandomUser();
+        setRandomUser(user);
+        showLogin(false);
+        document.getElementById('otp-message').textContent = '';
     });
 
     // Logout logic

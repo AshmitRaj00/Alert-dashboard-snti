@@ -522,21 +522,6 @@ body.dark .login-btn:hover {
 .form-switch a:hover {
     color: var(--danger);
 }
-.resend-otp-row {
-    text-align: right;
-    margin-top: 4px;
-}
-.resend-otp-row a {
-    font-size: 0.98rem;
-    color: var(--primary);
-    text-decoration: underline;
-    cursor: pointer;
-    font-weight: 500;
-    transition: color 0.2s;
-}
-.resend-otp-row a:hover {
-    color: var(--danger);
-}
 .otp-message {
     text-align: center;
     font-size: 1.05rem;

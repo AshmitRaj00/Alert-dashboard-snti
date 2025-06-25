@@ -209,11 +209,9 @@ function showPage(page) {
 }
 
 function loadProfile() {
-    const user = getCurrentUser();
-    if (!user) return;
-    document.getElementById('profile-name').value = user.name;
-    document.getElementById('profile-email').value = user.email;
-    document.getElementById('profile-avatar').src = user.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
+    document.getElementById('profile-name').value = 'Demo User';
+    document.getElementById('profile-email').value = 'demo@example.com';
+    document.getElementById('profile-avatar').src = 'https://randomuser.me/api/portraits/lego/1.jpg';
 }
 function saveProfile() {
     const name = document.getElementById('profile-name').value.trim();
@@ -264,66 +262,82 @@ function toggleThemeFromSettings() {
     localStorage.setItem('theme', dark ? 'dark' : 'light');
 }
 
-// --- Backend API helpers ---
-async function apiPost(url, data) {
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data)
-    });
-    return res.json();
-}
-async function apiGet(url) {
-    const res = await fetch(url, {
-        credentials: 'include'
-    });
-    return res.json();
+// --- Dashboard Data ---
+function loadDashboard() {
+    // Static demo data
+    document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = 324;
+    document.querySelector('.stat-card.critical .stat-value').innerHTML = '85 <i class="bx bxs-error"></i>';
+    document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = 56;
+    document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = 183;
+    // ... (add static updates for donut, trends, etc. if needed)
 }
 
-// --- Auth/session helpers ---
-async function backendRegister(name, email, password) {
-    return apiPost('http://localhost:5000/api/register', { name, email, password });
-}
-async function backendLogin(email, password) {
-    return apiPost('http://localhost:5000/api/login', { email, password });
-}
-async function backendLogout() {
-    return apiPost('http://localhost:5000/api/logout', {});
-}
-async function backendGetProfile() {
-    return apiGet('http://localhost:5000/api/profile');
-}
-async function backendUpdateProfile(name, avatar) {
-    return apiPost('http://localhost:5000/api/profile', { name, avatar });
-}
-async function backendChangePassword(new_password) {
-    return apiPost('http://localhost:5000/api/change-password', { new_password });
-}
-async function backendSetTheme(theme) {
-    return apiPost('http://localhost:5000/api/theme', { theme });
-}
-
-// --- Monitoring ---
-async function loadMonitoring() {
-    const data = await apiGet('http://localhost:5000/api/monitoring');
+function loadMonitoring() {
     const tbody = document.querySelector('#monitoring-table tbody');
     tbody.innerHTML = '';
-    if (data.systems) {
-        data.systems.forEach(sys => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${sys.name}</td><td>${sys.status}</td><td>${sys.uptime}</td>`;
-            tbody.appendChild(tr);
-        });
-    }
+    const systems = [
+        {name: 'Web Server', status: 'Online', uptime: '99.99%'},
+        {name: 'Database', status: 'Online', uptime: '99.95%'},
+        {name: 'Firewall', status: 'Online', uptime: '100%'},
+        {name: 'API Gateway', status: 'Degraded', uptime: '97.5%'}
+    ];
+    systems.forEach(sys => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${sys.name}</td><td>${sys.status}</td><td>${sys.uptime}</td>`;
+        tbody.appendChild(tr);
+    });
 }
 
-// --- API Scan ---
+function loadReports() {
+    const tbody = document.querySelector('#reports-table tbody');
+    tbody.innerHTML = '';
+    const reports = [
+        {name: 'April Security Report', date: '2024-05-01', summary: 'No major incidents.'},
+        {name: 'March Security Report', date: '2024-04-01', summary: '2 critical alerts resolved.'}
+    ];
+    reports.forEach(rep => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${rep.name}</td><td>${rep.date}</td><td>${rep.summary}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function showNotifications(notifications) {
+    let notifDiv = document.getElementById('notification-dropdown');
+    if (!notifDiv) {
+        notifDiv = document.createElement('div');
+        notifDiv.id = 'notification-dropdown';
+        notifDiv.style.position = 'absolute';
+        notifDiv.style.top = '60px';
+        notifDiv.style.right = '30px';
+        notifDiv.style.background = '#fff';
+        notifDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+        notifDiv.style.borderRadius = '8px';
+        notifDiv.style.zIndex = '1000';
+        notifDiv.style.minWidth = '250px';
+        notifDiv.onclick = e => e.stopPropagation();
+        document.body.appendChild(notifDiv);
+    }
+    notifDiv.innerHTML = `<div style='padding:10px 16px;font-weight:600;'>Notifications</div>` +
+        (notifications.length ? notifications.map(n => `<div style='padding:8px 16px;border-bottom:1px solid #eee;'>${n.message}</div>`).join('') : "<div style='padding:8px 16px;'>No notifications</div>");
+    notifDiv.style.display = 'block';
+    document.addEventListener('click', function hideNotif(e) {
+        notifDiv.style.display = 'none';
+        document.removeEventListener('click', hideNotif);
+    });
+}
+function fetchNotifications() {
+    showNotifications([
+        {message: 'New critical alert detected!'},
+        {message: 'SSL certificate expiring soon.'},
+        {message: 'API scan completed successfully.'}
+    ]);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
     fillTurnaroundBar();
-
     // Theme toggle
     const themeBtn = document.querySelector('.theme-toggle');
     let dark = localStorage.getItem('theme') === 'dark';
@@ -333,114 +347,22 @@ document.addEventListener('DOMContentLoaded', function() {
         setTheme(dark);
         localStorage.setItem('theme', dark ? 'dark' : 'light');
     });
-
-    // Login/Registration logic
-    // showLogin(!isLoggedIn());
-    if (isLoggedIn()) setRandomUser();
-
-    // Switch forms
-    // document.getElementById('show-register').onclick = function(e) {
-    //     e.preventDefault();
-    //     showRegisterForm();
-    // };
-    // document.getElementById('show-login').onclick = function(e) {
-    //     e.preventDefault();
-    //     showLoginForm();
-    // };
-
-    // Registration
-    // document.getElementById('register-form').addEventListener('submit', function(e) {
-    //     e.preventDefault();
-    //     const name = document.getElementById('register-name').value.trim();
-    //     const email = document.getElementById('register-email').value.trim().toLowerCase();
-    //     const password = document.getElementById('register-password').value.trim();
-    //     if (!name || !email || !password) return;
-    //     if (findUserByEmail(email)) {
-    //         alert('Email already registered. Please login.');
-    //         showLoginForm();
-    //         return;
-    //     }
-    //     saveRegisteredUser({ name, email, password });
-    //     alert('Registration successful! Please login.');
-    //     showLoginForm();
-    // });
-
-    // Email/Password Login
-    // document.getElementById('login-form').addEventListener('submit', function(e) {
-    //     e.preventDefault();
-    //     const email = document.getElementById('login-email').value.trim().toLowerCase();
-    //     const password = document.getElementById('login-password').value.trim();
-    //     const user = findUserByEmail(email);
-    //     if (!user || user.password !== password) {
-    //         document.getElementById('otp-message').textContent = 'Invalid email or password.';
-    //         document.getElementById('otp-message').className = 'otp-message error';
-    //         return;
-    //     }
-    //     localStorage.setItem('loggedIn', 'true');
-    //     clearRandomUser();
-    //     setRandomUser(user);
-    //     showLogin(false);
-    //     document.getElementById('otp-message').textContent = '';
-    // });
-
-    // Logout logic
-    // document.querySelector('.sidebar-logout').addEventListener('click', function() {
-    //     logout();
-    //     clearRandomUser();
-    //     showLoginForm();
-    // });
-
-    // Resend OTP
-    // document.getElementById('resend-otp').addEventListener('click', function(e) {
-    //     e.preventDefault();
-    //     if (!currentLoginEmail) return;
-    //     currentOTP = generateOTP();
-    //     showOTPInput(currentLoginEmail, true);
-    // });
-
     // Navigation
-    document.getElementById('nav-dashboard').onclick = function() { showPage('dashboard'); };
+    document.getElementById('nav-dashboard').onclick = function() { loadDashboard(); showPage('dashboard'); };
     document.getElementById('nav-profile').onclick = function() { loadProfile(); showPage('profile'); };
     document.getElementById('nav-settings').onclick = function() { showPage('settings'); };
     document.getElementById('nav-monitoring').onclick = function() { loadMonitoring(); showPage('monitoring'); };
     document.getElementById('nav-api-scan').onclick = function() { document.getElementById('api-scan-result').innerHTML = ''; showPage('api-scan'); };
     document.getElementById('nav-reports').onclick = function() { loadReports(); showPage('reports'); };
-    // Profile
-    document.getElementById('change-avatar-btn').onclick = function() {
-        document.getElementById('profile-avatar-upload').click();
+    document.querySelector('.header-bell').onclick = function(e) {
+        e.stopPropagation();
+        fetchNotifications();
     };
-    document.getElementById('profile-avatar-upload').onchange = handleAvatarUpload;
-    document.getElementById('save-profile-btn').onclick = saveProfile;
-    // Settings
-    document.getElementById('change-password-btn').onclick = changePassword;
-    document.getElementById('settings-theme-btn').onclick = toggleThemeFromSettings;
+    document.getElementById('user-avatar').onclick = function() {
+        loadProfile();
+        showPage('profile');
+    };
     // Show dashboard by default
+    loadDashboard();
     showPage('dashboard');
-
-    // API Scan button
-    document.getElementById('run-api-scan-btn').onclick = async function() {
-        const resultDiv = document.getElementById('api-scan-result');
-        resultDiv.innerHTML = 'Running scan...';
-        const data = await apiPost('http://localhost:5000/api/api-scan', {});
-        if (data.issues) {
-            resultDiv.innerHTML = `<b>Scan ID:</b> ${data.scan_id}<br><b>Status:</b> ${data.status}<br><b>Issues:</b><ul>` +
-                data.issues.map(i => `<li><b>${i.endpoint}</b>: ${i.issue} (${i.severity})</li>`).join('') + '</ul>';
-        } else {
-            resultDiv.innerHTML = 'No issues found or scan failed.';
-        }
-    };
-
-    // Reports
-    async function loadReports() {
-        const data = await apiGet('http://localhost:5000/api/reports');
-        const tbody = document.querySelector('#reports-table tbody');
-        tbody.innerHTML = '';
-        if (data.reports) {
-            data.reports.forEach(rep => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${rep.name}</td><td>${rep.date}</td><td>${rep.summary}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-    }
 }); 

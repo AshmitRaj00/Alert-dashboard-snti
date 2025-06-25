@@ -196,10 +196,16 @@ function showPage(page) {
     document.getElementById('page-dashboard').style.display = page === 'dashboard' ? '' : 'none';
     document.getElementById('page-profile').style.display = page === 'profile' ? '' : 'none';
     document.getElementById('page-settings').style.display = page === 'settings' ? '' : 'none';
+    document.getElementById('page-monitoring').style.display = page === 'monitoring' ? '' : 'none';
+    document.getElementById('page-api-scan').style.display = page === 'api-scan' ? '' : 'none';
+    document.getElementById('page-reports').style.display = page === 'reports' ? '' : 'none';
     // Sidebar active state
     document.getElementById('nav-dashboard').classList.toggle('active', page === 'dashboard');
     document.getElementById('nav-profile').classList.toggle('active', page === 'profile');
     document.getElementById('nav-settings').classList.toggle('active', page === 'settings');
+    document.getElementById('nav-monitoring').classList.toggle('active', page === 'monitoring');
+    document.getElementById('nav-api-scan').classList.toggle('active', page === 'api-scan');
+    document.getElementById('nav-reports').classList.toggle('active', page === 'reports');
 }
 
 function loadProfile() {
@@ -258,6 +264,61 @@ function toggleThemeFromSettings() {
     localStorage.setItem('theme', dark ? 'dark' : 'light');
 }
 
+// --- Backend API helpers ---
+async function apiPost(url, data) {
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data)
+    });
+    return res.json();
+}
+async function apiGet(url) {
+    const res = await fetch(url, {
+        credentials: 'include'
+    });
+    return res.json();
+}
+
+// --- Auth/session helpers ---
+async function backendRegister(name, email, password) {
+    return apiPost('http://localhost:5000/api/register', { name, email, password });
+}
+async function backendLogin(email, password) {
+    return apiPost('http://localhost:5000/api/login', { email, password });
+}
+async function backendLogout() {
+    return apiPost('http://localhost:5000/api/logout', {});
+}
+async function backendGetProfile() {
+    return apiGet('http://localhost:5000/api/profile');
+}
+async function backendUpdateProfile(name, avatar) {
+    return apiPost('http://localhost:5000/api/profile', { name, avatar });
+}
+async function backendChangePassword(new_password) {
+    return apiPost('http://localhost:5000/api/change-password', { new_password });
+}
+async function backendSetTheme(theme) {
+    return apiPost('http://localhost:5000/api/theme', { theme });
+}
+
+// --- Monitoring ---
+async function loadMonitoring() {
+    const data = await apiGet('http://localhost:5000/api/monitoring');
+    const tbody = document.querySelector('#monitoring-table tbody');
+    tbody.innerHTML = '';
+    if (data.systems) {
+        data.systems.forEach(sys => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${sys.name}</td><td>${sys.status}</td><td>${sys.uptime}</td>`;
+            tbody.appendChild(tr);
+        });
+    }
+}
+
+// --- API Scan ---
 document.addEventListener('DOMContentLoaded', function() {
     drawDonutChart();
     drawLineChart();
@@ -341,6 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('nav-dashboard').onclick = function() { showPage('dashboard'); };
     document.getElementById('nav-profile').onclick = function() { loadProfile(); showPage('profile'); };
     document.getElementById('nav-settings').onclick = function() { showPage('settings'); };
+    document.getElementById('nav-monitoring').onclick = function() { loadMonitoring(); showPage('monitoring'); };
+    document.getElementById('nav-api-scan').onclick = function() { document.getElementById('api-scan-result').innerHTML = ''; showPage('api-scan'); };
+    document.getElementById('nav-reports').onclick = function() { loadReports(); showPage('reports'); };
     // Profile
     document.getElementById('change-avatar-btn').onclick = function() {
         document.getElementById('profile-avatar-upload').click();
@@ -352,4 +416,31 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('settings-theme-btn').onclick = toggleThemeFromSettings;
     // Show dashboard by default
     showPage('dashboard');
+
+    // API Scan button
+    document.getElementById('run-api-scan-btn').onclick = async function() {
+        const resultDiv = document.getElementById('api-scan-result');
+        resultDiv.innerHTML = 'Running scan...';
+        const data = await apiPost('http://localhost:5000/api/api-scan', {});
+        if (data.issues) {
+            resultDiv.innerHTML = `<b>Scan ID:</b> ${data.scan_id}<br><b>Status:</b> ${data.status}<br><b>Issues:</b><ul>` +
+                data.issues.map(i => `<li><b>${i.endpoint}</b>: ${i.issue} (${i.severity})</li>`).join('') + '</ul>';
+        } else {
+            resultDiv.innerHTML = 'No issues found or scan failed.';
+        }
+    };
+
+    // Reports
+    async function loadReports() {
+        const data = await apiGet('http://localhost:5000/api/reports');
+        const tbody = document.querySelector('#reports-table tbody');
+        tbody.innerHTML = '';
+        if (data.reports) {
+            data.reports.forEach(rep => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${rep.name}</td><td>${rep.date}</td><td>${rep.summary}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+    }
 }); 

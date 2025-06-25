@@ -626,4 +626,32 @@ body.dark .login-btn:hover {
     flex-direction: column;
     gap: 8px;
     margin-bottom: 18px;
+}
+
+.monitoring-card, .api-scan-card, .reports-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 32px 32px 24px 32px;
+    max-width: 700px;
+    margin: 32px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: stretch;
+}
+#run-api-scan-btn {
+    margin-bottom: 18px;
+    padding: 10px 0;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#run-api-scan-btn:hover {
+    background: var(--danger);
 } 

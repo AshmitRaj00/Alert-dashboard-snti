@@ -62,9 +62,9 @@
                         <li class="active" id="nav-dashboard"><i class='bx bxs-dashboard'></i> Dashboard</li>
                         <li id="nav-profile"><i class='bx bx-user'></i> Profile</li>
                         <li id="nav-settings"><i class='bx bx-cog'></i> Settings</li>
-                        <li><i class='bx bx-desktop'></i> Monitoring</li>
-                        <li><i class='bx bx-link-alt'></i> API Scan</li>
-                        <li><i class='bx bx-bar-chart-alt-2'></i> Reports</li>
+                        <li id="nav-monitoring"><i class='bx bx-desktop'></i> Monitoring</li>
+                        <li id="nav-api-scan"><i class='bx bx-link-alt'></i> API Scan</li>
+                        <li id="nav-reports"><i class='bx bx-bar-chart-alt-2'></i> Reports</li>
                     </ul>
                 </nav>
                 <div class="sidebar-bottom">
@@ -244,6 +244,35 @@
                 <label>Theme</label>
                 <button id="settings-theme-btn">Toggle Dark/Light Mode</button>
             </div>
+        </div>
+    </div>
+    <div id="page-monitoring" style="display:none;">
+        <div class="monitoring-card">
+            <h2>Monitoring</h2>
+            <table id="monitoring-table" class="alerts-table">
+                <thead>
+                    <tr><th>System</th><th>Status</th><th>Uptime</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="page-api-scan" style="display:none;">
+        <div class="api-scan-card">
+            <h2>API Scan</h2>
+            <button id="run-api-scan-btn">Run API Scan</button>
+            <div id="api-scan-result"></div>
+        </div>
+    </div>
+    <div id="page-reports" style="display:none;">
+        <div class="reports-card">
+            <h2>Reports</h2>
+            <table id="reports-table" class="alerts-table">
+                <thead>
+                    <tr><th>Name</th><th>Date</th><th>Summary</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
     <script src="js/main.js"></script>

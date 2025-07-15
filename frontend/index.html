@@ -279,3 +279,206 @@
     <div id="notification-dropdown" style="display:none;"></div>
 </body>
 </html> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="navbar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Alerts Dashboard</h2>
+            </div>
+            <div class="nav-links">
+                <button class="nav-btn" data-view="dashboard">Dashboard</button>
+                <button class="nav-btn" data-view="alerts">Alerts</button>
+                <button class="nav-btn" data-view="settings">Settings</button>
+                <button class="nav-btn logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div id="loginContainer" class="auth-container">
+        <div class="auth-card">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <p class="auth-switch">
+                Don't have an account? 
+                <a href="#" onclick="showRegister()">Register here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register Container -->
+    <div id="registerContainer" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <h2>Register</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+            <p class="auth-switch">
+                Already have an account? 
+                <a href="#" onclick="showLogin()">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboardContainer" class="main-container" style="display: none;">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p>Welcome to your alerts dashboard</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div id="statsContainer" class="stats-container">
+            <div class="stat-card">
+                <h3>Total Alerts</h3>
+                <p class="stat-number">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Alerts</h3>
+                <p class="stat-number">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Triggered Today</h3>
+                <p class="stat-number">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Success Rate</h3>
+                <p class="stat-number">0%</p>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="dashboard-section">
+            <h2>Recent Alerts</h2>
+            <div id="recentAlerts" class="recent-alerts">
+                <p>No recent alerts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Container -->
+    <div id="alertsContainer" class="main-container" style="display: none;">
+        <div class="alerts-header">
+            <h1>Alerts Management</h1>
+            <button class="btn btn-primary" onclick="showAlertModal()">Create New Alert</button>
+        </div>
+
+        <!-- Alerts List -->
+        <div id="alertsList" class="alerts-list">
+            <p>No alerts found</p>
+        </div>
+    </div>
+
+    <!-- Settings Container -->
+    <div id="settingsContainer" class="main-container" style="display: none;">
+        <div class="settings-header">
+            <h1>Settings</h1>
+        </div>
+
+        <div class="settings-section">
+            <h2>Account Settings</h2>
+            <div class="form-group">
+                <label for="settingsUsername">Username</label>
+                <input type="text" id="settingsUsername" name="username" placeholder="Your username">
+            </div>
+            <div class="form-group">
+                <label for="settingsEmail">Email</label>
+                <input type="email" id="settingsEmail" name="email" placeholder="Your email">
+            </div>
+            <button class="btn btn-primary">Update Profile</button>
+        </div>
+
+        <div class="settings-section">
+            <h2>Notification Settings</h2>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="emailNotifications" checked>
+                    Email Notifications
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="pushNotifications" checked>
+                    Push Notifications
+                </label>
+            </div>
+            <button class="btn btn-primary">Save Settings</button>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Create New Alert</h2>
+                <span class="close" onclick="closeAlertModal()">&times;</span>
+            </div>
+            <form id="alertForm">
+                <div class="form-group">
+                    <label for="alertTitle">Title</label>
+                    <input type="text" id="alertTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="alertMessage">Message</label>
+                    <textarea id="alertMessage" name="message" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="alertType">Alert Type</label>
+                    <select id="alertType" name="alert_type" required>
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                        <option value="push">Push Notification</option>
+                        <option value="webhook">Webhook</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isActive" name="is_active" checked>
+                        Active
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAlertModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Alert</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>

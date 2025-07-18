@@ -26,6 +26,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Mount the frontend directory
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+# Serve index.html at root
+@app.get("/", response_class=FileResponse)
+async def serve_frontend():
+    return "frontend/index.html"
+
+
 # Security
 security = HTTPBearer()
 
@@ -114,9 +126,12 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         raise HTTPException(status_code=401, detail="Invalid token")
 
 # Routes
-@app.get("/")
-async def root():
-    return {"message": "Alerts Dashboard API is running!"}
+from fastapi.responses import FileResponse
+
+@app.get("/", response_class=FileResponse)
+async def serve_frontend():
+    return FileResponse("frontend/index.html")
+
 
 @app.post("/auth/register", response_model=User)
 async def register(user: UserRegister):
@@ -400,4 +415,4 @@ if __name__ == "__main__":
     print("Starting Alerts Dashboard API...")
     print("Server will be available at: http://localhost:8000")
     print("API Documentation: http://localhost:8000/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

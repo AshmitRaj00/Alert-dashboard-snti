@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -8,6 +8,7 @@ import sqlite3
 import hashlib
 import jwt
 import uvicorn
+import base64
 
 # JWT Configuration
 SECRET_KEY = "your-secret-key-here"
@@ -90,6 +91,13 @@ class Token(BaseModel):
     token_type: str
     user: User
 
+class ProfileUpdate(BaseModel):
+    name: str
+    avatar: Optional[str] = None
+
+class PasswordChange(BaseModel):
+    new_password: str
+
 # Utility functions
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -126,12 +134,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         raise HTTPException(status_code=401, detail="Invalid token")
 
 # Routes
-from fastapi.responses import FileResponse
-
-@app.get("/", response_class=FileResponse)
-async def serve_frontend():
-    return FileResponse("frontend/index.html")
-
 
 @app.post("/auth/register", response_model=User)
 async def register(user: UserRegister):
@@ -192,14 +194,78 @@ async def login(user: UserLogin):
         )
     )
 
-@app.get("/auth/me", response_model=User)
+@app.get("/auth/me")
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
-    return User(
-        id=current_user["id"],
-        username=current_user["username"],
-        email=current_user["email"],
-        created_at=current_user["created_at"]
-    )
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, email, created_at, avatar FROM users WHERE id = ?", (current_user["id"],))
+    user = cursor.fetchone()
+    conn.close()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "id": user[0],
+        "username": user[1],
+        "email": user[2],
+        "created_at": user[3],
+        "avatar": user[4]
+    }
+
+@app.put("/auth/profile")
+async def update_profile(profile: ProfileUpdate, current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE users SET username = ?, avatar = ? WHERE id = ?
+    ''', (profile.name, profile.avatar, current_user["id"]))
+    if cursor.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    conn.commit()
+    cursor.execute("SELECT id, username, email, created_at, avatar FROM users WHERE id = ?", (current_user["id"],))
+    user = cursor.fetchone()
+    conn.close()
+    return {
+        "id": user[0],
+        "username": user[1],
+        "email": user[2],
+        "created_at": user[3],
+        "avatar": user[4]
+    }
+
+@app.put("/auth/password")
+async def change_password(password_change: PasswordChange, current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    password_hash = hash_password(password_change.new_password)
+    cursor.execute('''
+        UPDATE users SET password_hash = ? WHERE id = ?
+    ''', (password_hash, current_user["id"]))
+    if cursor.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    conn.commit()
+    conn.close()
+    return {"message": "Password updated successfully"}
+
+@app.post("/auth/upload-avatar")
+async def upload_avatar(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    content = await file.read()
+    avatar_data = base64.b64encode(content).decode('utf-8')
+    avatar_url = f"data:{file.content_type};base64,{avatar_data}"
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE users SET avatar = ? WHERE id = ?
+    ''', (avatar_url, current_user["id"]))
+    if cursor.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    conn.commit()
+    conn.close()
+    return {"avatar_url": avatar_url}
 
 @app.get("/alerts/", response_model=List[Alert])
 async def get_alerts(current_user: dict = Depends(get_current_user)):
@@ -408,6 +474,96 @@ async def get_alert_stats(current_user: dict = Depends(get_current_user)):
         "active_alerts": active_alerts,
         "triggered_today": triggered_today,
         "success_rate": round(success_rate, 1)
+    }
+
+@app.get("/alerts/recent")
+async def get_recent_alerts(limit: int = 10, current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, title, message, alert_type, is_active, created_at, triggered_at, status
+        FROM alerts WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+    ''', (current_user["id"], limit))
+    alerts = []
+    for row in cursor.fetchall():
+        alerts.append({
+            "id": row[0],
+            "title": row[1],
+            "message": row[2],
+            "alert_type": row[3],
+            "is_active": row[4],
+            "created_at": row[5],
+            "triggered_at": row[6],
+            "status": row[7]
+        })
+    conn.close()
+    return alerts
+
+@app.get("/alerts/top-sources")
+async def get_top_alert_sources(limit: int = 10, current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT alert_type, COUNT(*) as alert_count
+        FROM alerts WHERE user_id = ?
+        GROUP BY alert_type
+        ORDER BY alert_count DESC
+        LIMIT ?
+    ''', (current_user["id"], limit))
+    sources = []
+    for row in cursor.fetchall():
+        sources.append({
+            "alert_type": row[0],
+            "alert_count": row[1]
+        })
+    conn.close()
+    return sources
+
+@app.get("/alerts/trends")
+async def get_alert_trends(days: int = 7, current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT DATE(created_at) as date, COUNT(*) as count
+        FROM alerts
+        WHERE user_id = ? AND created_at >= datetime('now', '-' || ? || ' days')
+        GROUP BY DATE(created_at)
+        ORDER BY date
+    ''', (current_user["id"], days))
+    trends = []
+    for row in cursor.fetchall():
+        trends.append({
+            "date": row[0],
+            "count": row[1]
+        })
+    conn.close()
+    return trends
+
+@app.get("/dashboard/summary")
+async def get_dashboard_summary(current_user: dict = Depends(get_current_user)):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ?", (current_user["id"],))
+    total_alerts = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ? AND status = 'Open'", (current_user["id"],))
+    open_alerts = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ? AND status = 'Closed'", (current_user["id"],))
+    closed_alerts = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ? AND alert_type LIKE '%SSL%'", (current_user["id"],))
+    ssl_alerts = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE user_id = ? AND (alert_type LIKE '%Data%' OR alert_type LIKE '%Leak%')", (current_user["id"],))
+    data_leaks = cursor.fetchone()[0]
+    other_alerts = total_alerts - ssl_alerts - data_leaks
+    conn.close()
+    return {
+        "total_alerts": total_alerts,
+        "open_alerts": open_alerts,
+        "closed_alerts": closed_alerts,
+        "ssl_alerts": ssl_alerts,
+        "data_leaks": data_leaks,
+        "other_alerts": other_alerts
     }
 
 # Run the server

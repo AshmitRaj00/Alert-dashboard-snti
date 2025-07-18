@@ -140,6 +140,23 @@ const alertsContainer = document.getElementById('alertsContainer');
 const settingsContainer = document.getElementById('settingsContainer');
 const alertForm = document.getElementById('alertForm');
 const alertModal = document.getElementById('alertModal');
+// Add new DOM elements for new pages and buttons
+const profilePage = document.getElementById('page-profile');
+const monitoringPage = document.getElementById('page-monitoring');
+const apiScanPage = document.getElementById('page-api-scan');
+const reportsPage = document.getElementById('page-reports');
+const sidebarLogout = document.querySelector('.sidebar-logout');
+const sidebarSettings = document.querySelector('.sidebar-settings');
+const themeToggle = document.querySelector('.theme-toggle');
+const navProfile = document.getElementById('nav-profile');
+const navDashboard = document.getElementById('nav-dashboard');
+const navSettings = document.getElementById('nav-settings');
+const navMonitoring = document.getElementById('nav-monitoring');
+const navApiScan = document.getElementById('nav-api-scan');
+const navReports = document.getElementById('nav-reports');
+const saveProfileBtn = document.getElementById('save-profile-btn');
+const changeAvatarBtn = document.getElementById('change-avatar-btn');
+const profileAvatarUpload = document.getElementById('profile-avatar-upload');
 
 // Navigation Functions
 function showLogin() {
@@ -177,10 +194,40 @@ function showSettings() {
     currentView = 'settings';
 }
 
+function showProfile() {
+    hideAllContainers();
+    if (profilePage) profilePage.style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    currentView = 'profile';
+    // Optionally load user profile data here
+}
+
+function showMonitoring() {
+    hideAllContainers();
+    if (monitoringPage) monitoringPage.style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    currentView = 'monitoring';
+}
+
+function showApiScan() {
+    hideAllContainers();
+    if (apiScanPage) apiScanPage.style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    currentView = 'api-scan';
+}
+
+function showReports() {
+    hideAllContainers();
+    if (reportsPage) reportsPage.style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    currentView = 'reports';
+}
+
 function hideAllContainers() {
     const containers = [
         'loginContainer', 'registerContainer', 'dashboardContainer', 
-        'alertsContainer', 'settingsContainer'
+        'alertsContainer', 'settingsContainer',
+        'page-profile', 'page-monitoring', 'page-api-scan', 'page-reports'
     ];
     containers.forEach(id => {
         const element = document.getElementById(id);
@@ -194,6 +241,11 @@ async function loadDashboard() {
         const stats = await getAlertStats();
         if (stats) {
             updateDashboardStats(stats);
+            // Example: render graph with dummy data
+            renderAlertTrendsChart({
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                values: [12, 19, 7, 14, 10, 15, 9]
+            });
         }
         
         const alerts = await getAlerts();
@@ -462,6 +514,45 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.style.display = 'none';
         }
     });
+
+    // Sidebar navigation
+    if (navDashboard) navDashboard.onclick = showDashboard;
+    if (navProfile) navProfile.onclick = showProfile;
+    if (navSettings) navSettings.onclick = showSettings;
+    if (navMonitoring) navMonitoring.onclick = showMonitoring;
+    if (navApiScan) navApiScan.onclick = showApiScan;
+    if (navReports) navReports.onclick = showReports;
+    // Sidebar logout/settings
+    if (sidebarLogout) sidebarLogout.onclick = logout;
+    if (sidebarSettings) sidebarSettings.onclick = showSettings;
+    // Theme toggle
+    if (themeToggle) {
+        themeToggle.onclick = function() {
+            document.body.classList.toggle('dark');
+        };
+    }
+    // Profile actions
+    if (saveProfileBtn) {
+        saveProfileBtn.onclick = function() {
+            // Save profile logic (stub)
+            showNotification('Profile saved!', 'success');
+        };
+    }
+    if (changeAvatarBtn && profileAvatarUpload) {
+        changeAvatarBtn.onclick = function() {
+            profileAvatarUpload.click();
+        };
+        profileAvatarUpload.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    document.getElementById('profile-avatar').src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    }
 });
 
 // Export functions for global access
@@ -476,3 +567,29 @@ window.closeAlertModal = closeAlertModal;
 window.editAlert = editAlert;
 window.deleteAlertConfirm = deleteAlertConfirm;
 window.testAlert = testAlert;
+
+// Chart.js for dashboard graph
+function renderAlertTrendsChart(data) {
+    if (window.alertTrendsChart) {
+        window.alertTrendsChart.destroy();
+    }
+    const ctx = document.getElementById('alertTrends');
+    if (!ctx || typeof Chart === 'undefined') return;
+    window.alertTrendsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Alerts',
+                data: data.values,
+                borderColor: '#5b5bf6',
+                backgroundColor: 'rgba(91,91,246,0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+}
